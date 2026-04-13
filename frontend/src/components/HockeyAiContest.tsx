@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Scale, Brain, Plus, Check, Loader2 } from 'lucide-react';
-import { openBookmaker } from '../lib/bookmakerUtils';
+import { Scale, Brain, Check, Loader2 } from 'lucide-react';
 
 interface HockeyAiContestProps {
     onPublish: () => void;
