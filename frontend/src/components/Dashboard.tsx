@@ -322,18 +322,14 @@ export function Dashboard({ session }: { session: Session | null }) {
             driver: pick.driver || horseInfos.find(h => h.id === pick.horse_id)?.default_driver || '-',
             isFinished: (() => {
                 const checkStatus = (typeof pick.status === 'string') ? pick.status.toLowerCase() : '';
+                const isCompletedStatus = ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(checkStatus);
                 let parsedNet = 0;
                 if (pick.net_result != null && pick.net_result !== "") {
                     parsedNet = Number(pick.net_result.toString().replace(',', '.'));
                 }
                 const hasActualNet = !isNaN(parsedNet) && parsedNet !== 0;
                 
-                if (checkStatus && checkStatus !== 'pending' && checkStatus !== 'active' && checkStatus !== 'draft') {
-                    return true;
-                } else if (!checkStatus && hasActualNet) {
-                    return true;
-                }
-                return false;
+                return isCompletedStatus || (!checkStatus && hasActualNet);
             })()
         };
 

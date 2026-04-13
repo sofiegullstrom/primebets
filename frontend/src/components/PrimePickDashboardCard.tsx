@@ -87,6 +87,7 @@ export const PrimePickDashboardCard = ({
 
     if (primePick) {
         const statusStr = (typeof primePick.status === 'string') ? primePick.status.toLowerCase() : '';
+        const isCompletedStatus = ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(statusStr);
         
         let parsedNet = 0;
         if (primePick.net_result != null && primePick.net_result !== "") {
@@ -95,12 +96,7 @@ export const PrimePickDashboardCard = ({
         }
         const hasActualNet = !isNaN(parsedNet) && parsedNet !== 0;
         
-        let hasResult = false;
-        if (statusStr && statusStr !== 'pending' && statusStr !== 'active' && statusStr !== 'draft') {
-            hasResult = true;
-        } else if (!statusStr && hasActualNet) {
-            hasResult = true;
-        }
+        const hasResult = isCompletedStatus || (!statusStr && hasActualNet);
 
         return (
             <article
