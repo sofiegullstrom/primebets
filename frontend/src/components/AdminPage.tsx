@@ -55,7 +55,7 @@ export function AdminPage({ session }: { session: Session | null }) {
         setNotificationStatus('loading');
         try {
             const { data, error } = await supabase.functions.invoke('notify-subscribers', {
-                body: { secret: 'primebets-secret-release-key' }
+                body: { secret: 'pb_sec_k9Fm3XqL5vNpR7cW1Yt4Bz6HdGjV8A2' }
             })
 
             if (error) throw error
@@ -75,16 +75,6 @@ export function AdminPage({ session }: { session: Session | null }) {
     async function checkAdmin() {
         if (!session?.user.id) return
 
-        // Emergency Admin Bypass for specific emails
-        // This bypasses the Database RLS check which is currently erroring
-        const adminEmails = ['sofie.g63@outlook.com', 'primebets.se@gmail.com', 'adam.sundqvistt@gmail.com'];
-        if (session.user.email && adminEmails.includes(session.user.email)) {
-            console.log('Admin Access Granted via Email Whitelist');
-            setIsAdmin(true);
-            // We attempt to fetch users, but if that fails due to RLS, we handle it
-            fetchUsers();
-            return;
-        }
 
         try {
             const { data: profile, error } = await supabase

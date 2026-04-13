@@ -26,7 +26,7 @@ export default async function handler(request, response) {
     // Verify secret token to prevent unauthorized access (Simple protection)
     // In production, use a proper Auth header or Webhook secret.
     const { secret, pickTitle, pickOdds, pickTrack } = request.body;
-    if (secret !== 'primebets-secret-release-key') { // Simple guard
+    if (secret !== process.env.NOTIFY_SECRET) { // Simple guard
         return response.status(401).json({ error: 'Unauthorized' });
     }
 
