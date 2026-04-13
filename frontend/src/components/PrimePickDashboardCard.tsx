@@ -106,6 +106,19 @@ export const PrimePickDashboardCard = ({
                             <span className="text-xs font-bold text-[#2FAE8F]">+{primePick.value_percent < 1 ? Math.round(primePick.value_percent * 100) : Math.round(primePick.value_percent)}%</span>
                         </div>
                     )}
+                    {primePick.ai_score != null && (
+                      <span style={{
+                        background: primePick.ai_score >= 75 ? 'rgba(47,174,143,0.1)' : 'rgba(201,168,106,0.1)',
+                        border: `1px solid ${primePick.ai_score >= 75 ? 'rgba(47,174,143,0.25)' : 'rgba(201,168,106,0.25)'}`,
+                        borderRadius: '6px',
+                        padding: '3px 10px',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        color: primePick.ai_score >= 75 ? '#2FAE8F' : '#C9A86A',
+                      }}>
+                        AI {primePick.ai_score} / 100
+                      </span>
+                    )}
                 </div>
 
                 {/* Header */}
