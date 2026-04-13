@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://primebets.se/sitemap.xml
+
+# Disallow private pages
+Disallow: /dashboard

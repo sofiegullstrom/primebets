@@ -1,0 +1,3 @@
+ALTER TABLE daily_picks ADD COLUMN IF NOT EXISTS equipment TEXT;
+ALTER TABLE weekly_scout ADD COLUMN IF NOT EXISTS equipment TEXT;
+ALTER TABLE saturday_picks ADD COLUMN IF NOT EXISTS equipment TEXT;

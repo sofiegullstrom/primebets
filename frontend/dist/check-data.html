@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Supabase Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Checking Supabase daily_picks data...</h1>
+    <div id="results"></div>
+    
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://qkdxqvlqxvjjcxfhwzqe.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrZHhxdmxxeHZqamN4Zmh3enFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxMTM4MjEsImV4cCI6MjA0NzY4OTgyMX0.Tz0jPSdVPXmJKPvGPjFnGqxnOLOdGiHWQaEqZPQQQQk'
+        );
+        
+        async function checkData() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Fetch ALL picks
+            const { data: allPicks, error: allError } = await supabaseClient
+                .from('daily_picks')
+                .select('*')
+                .order('race_date', { ascending: false });
+            
+            if (allError) {
+                resultsDiv.innerHTML = `<p style="color: red;">Error: ${allError.message}</p>`;
+                return;
+            }
+            
+            const total = allPicks?.length || 0;
+            const pending = allPicks?.filter(p => p.status === 'pending').length || 0;
+            const won = allPicks?.filter(p => p.status === 'won').length || 0;
+            const lost = allPicks?.filter(p => p.status === 'lost').length || 0;
+            
+            const withNetResult = allPicks?.filter(p => p.net_result !== null).length || 0;
+            const withResultPayout = allPicks?.filter(p => p.result_payout !== null).length || 0;
+            
+            let html = `
+                <h2>Database Stats:</h2>
+                <ul>
+                    <li><strong>Total picks:</strong> ${total}</li>
+                    <li><strong>Status breakdown:</strong>
+                        <ul>
+                            <li>Pending: ${pending}</li>
+                            <li>Won: ${won}</li>
+                            <li>Lost: ${lost}</li>
+                        </ul>
+                    </li>
+                    <li><strong>Picks with net_result:</strong> ${withNetResult}</li>
+                    <li><strong>Picks with result_payout:</strong> ${withResultPayout}</li>
+                </ul>
+                
+                <h2>Sample Data (first 5):</h2>
+                <table border="1" cellpadding="5">
+                    <tr>
+                        <th>Date</th>
+                        <th>Horse</th>
+                        <th>Status</th>
+                        <th>Net Result</th>
+                        <th>Result Payout</th>
+                    </tr>
+            `;
+            
+            allPicks?.slice(0, 5).forEach(pick => {
+                html += `
+                    <tr>
+                        <td>${pick.race_date}</td>
+                        <td>${pick.horse_name}</td>
+                        <td>${pick.status}</td>
+                        <td>${pick.net_result}</td>
+                        <td>${pick.result_payout}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            resultsDiv.innerHTML = html;
+        }
+        
+        checkData();
+    </script>
+</body>
+</html>

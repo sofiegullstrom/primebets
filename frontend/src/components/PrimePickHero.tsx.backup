@@ -1,0 +1,234 @@
+import { useState, useEffect } from 'react'
+import { Pick } from '../types'
+import { X } from 'lucide-react'
+
+interface PrimePickHeroProps {
+    pick: Pick | undefined
+    variant?: 'default' | 'preview'
+}
+
+export function PrimePickHero({ pick, variant = 'default' }: PrimePickHeroProps) {
+    const [timeLeft, setTimeLeft] = useState<string>('')
+    const [isReleased, setIsReleased] = useState(false)
+    const [showOddsModal, setShowOddsModal] = useState(false)
+    const [showAnalysisModal, setShowAnalysisModal] = useState(false)
+
+    useEffect(() => {
+        const checkTime = () => {
+            const now = new Date()
+            const target = new Date()
+            target.setHours(19, 30, 0, 0) // Target 19:30
+
+            if (pick) {
+                setIsReleased(true)
+                return
+            }
+
+            const diff = target.getTime() - now.getTime()
+
+            if (diff <= 0) {
+                setIsReleased(false)
+                setTimeLeft("Inväntar spel...")
+            } else {
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+                setTimeLeft(`${hours}h ${minutes}m ${seconds}s`)
+                setIsReleased(false)
+            }
+        }
+
+        const timer = setInterval(checkTime, 1000)
+        checkTime() // Initial run
+
+        return () => clearInterval(timer)
+    }, [pick])
+
+    // Get betting provider URL
+    const getBettingUrl = () => {
+        if (!pick?.bookmaker) return null
+
+        const provider = pick.bookmaker.toUpperCase().trim()
+
+        // Map betting providers to their URLs
+        const providerUrls: Record<string, string> = {
+            'SVS': 'https://www.svenskaspel.se/',
+            'SVENSKA SPEL': 'https://www.svenskaspel.se/',
+            'LEOVEGAS': 'https://www.leovegas.com/sv-se/',
+            'BETMGM': 'https://www.betmgm.se/',
+            'BET365': 'https://www.bet365.com/',
+            'UNIBET': 'https://www.unibet.se/',
+            'ATG': 'https://www.atg.se/'
+        }
+
+        return providerUrls[provider] || null
+    }
+
+    const handleBettingClick = () => {
+        const url = getBettingUrl()
+        if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer')
+        } else {
+            setShowOddsModal(true)
+        }
+    }
+
+    if (!isReleased || !pick) {
+        return (
+            <div className="w-full p-8 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center min-h-[300px] shadow-2xl">
+                {/* Countdown */}
+                <div className="text-5xl md:text-7xl font-mono font-bold text-emerald-400 tracking-wider animate-pulse mb-6">
+                    {timeLeft}
+                </div>
+
+                {/* Analysis Text */}
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-2 max-w-2xl leading-relaxed">
+                    Analysen pågår, vi samlar data, intervjuer och odds för att välja dagens bästa spel till ditt PrimePick
+                </h2>
+
+                {/* Publish Time */}
+                <p className="text-slate-500 font-mono text-sm mt-4">
+                    Publiceras senast kl. 19:30
+                </p>
+            </div>
+        )
+    }
+
+    return (
+        <>
+            <div className="relative w-full p-4 md:p-8 rounded-xl md:rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 overflow-hidden group">
+                {/* Background Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
+                    <div className="w-full md:w-auto">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
+                            <span className="px-2.5 md:px-3 py-0.5 md:py-1 bg-emerald-500 text-slate-900 text-xs font-bold rounded-full uppercase tracking-wider">
+                                Dagens PrimePick
+                            </span>
+                            <span className="text-slate-400 text-xs md:text-sm flex items-center gap-1">
+                                <span className={`w-2 h-2 rounded-full ${pick.status === 'pending' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+                                {pick.status === 'pending' ? 'Öppet Spel' : 'Avslutat'}
+                            </span>
+                        </div>
+
+                        <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2 tracking-tight drop-shadow-lg break-words">
+                            {pick.horse_name}
+                        </h1>
+                        <p className="text-base md:text-lg text-slate-300 flex flex-wrap items-center gap-2">
+                            <span>{pick.track_name}</span>
+                            <span className="text-slate-600">•</span>
+                            <span>Lopp {pick.race_number}</span>
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col items-start md:items-end w-full md:w-auto">
+                        <div className="text-left md:text-right mb-3 md:mb-4">
+                            <span className="block text-xs md:text-sm text-slate-400 uppercase tracking-wider">Odds</span>
+                            <span className="text-4xl md:text-5xl font-bold text-emerald-400">{pick.odds}</span>
+                        </div>
+
+                        {pick.value_percent && (
+                            <div className="px-3 md:px-4 py-1.5 md:py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 mb-3 md:mb-4">
+                                <span className="text-emerald-400 font-bold text-sm md:text-base">{pick.value_percent}% Spelvärde</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {variant === 'preview' ? (
+                    <div className="mt-8 grid md:grid-cols-2 gap-6">
+                        {/* Motivation Section */}
+                        <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-700/50">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+                                <h3 className="text-sm font-bold text-slate-400 uppercase">Motivering</h3>
+                            </div>
+                            <p className="text-slate-300 leading-relaxed whitespace-pre-wrap italic">
+                                "{pick.adam_notes}"
+                            </p>
+                        </div>
+
+                        {/* Interview Section */}
+                        <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-700/50">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                                <h3 className="text-sm font-bold text-slate-400 uppercase">Intervju</h3>
+                            </div>
+                            <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                {pick.interview_info || "Ingen intervju tillgänglig för detta spel."}
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-8 grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 p-6 rounded-xl bg-slate-900/50 border border-slate-700/50">
+                            <h3 className="text-sm font-bold text-slate-400 uppercase mb-3">AI Analys</h3>
+                            <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                {pick.final_output_message || pick.adam_notes}
+                            </p>
+                            <div className="flex flex-col gap-3 justify-end">
+                                <button
+                                    onClick={handleBettingClick}
+                                    className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-center rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                                >
+                                    <span>Spela med bäst odds</span>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                </button>
+                            </div>
+                            {/* Analysis Section */}
+                            <div className="relative z-10 bg-slate-900/50 rounded-xl p-6 border border-slate-700">
+                                <h3 className="text-sm font-bold text-slate-400 uppercase mb-3">Analys</h3>
+                                <p className="text-slate-300 leading-relaxed mb-6">
+                                    {pick.final_output_message || pick.ai_analysis || 'Analys kommer snart...'}
+                                </p>
+
+                                <button
+                                    className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700 transition-colors"
+                                    onClick={() => setShowAnalysisModal(true)}
+                                >
+                                    Läs Full Analys
+                                </button>
+                            </div>
+                        </div>
+                )}
+                    </div>
+
+            {/* Odds Not Available Modal */}
+                {showOddsModal && (
+                    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowOddsModal(false)}>
+                        <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-white">Odds ej tillgängliga</h2>
+                                <button
+                                    onClick={() => setShowOddsModal(false)}
+                                    className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <p className="text-slate-300 leading-relaxed">
+                                    Spelbolagen har inte släppt sina odds ännu. Kom tillbaka senare för att se var du kan spela med bäst odds!
+                                </p>
+
+                                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                                    <p className="text-emerald-400 text-sm">
+                                        💡 <strong>Tips:</strong> Odds brukar släppas några timmar innan loppstart.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowOddsModal(false)}
+                                className="w-full mt-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-lg transition-colors"
+                            >
+                                Okej, förstått!
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </>
+            )
+}
