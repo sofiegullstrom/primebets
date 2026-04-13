@@ -312,7 +312,7 @@ export function Dashboard({ session }: { session: Session | null }) {
             motivationBold: "Analys",
             motivationBody: pick.final_output_message || pick.adam_notes || "Ingen analys tillgänglig.",
             stats: [
-                { label: "Kusk", value: horseInfos.find(h => h.id === pick.horse_id)?.default_driver || '-' },
+                { label: "Kusk", value: pick.driver || horseInfos.find(h => h.id === pick.horse_id)?.default_driver || '-' },
                 { label: "Spelform", value: pick.bet_type || '-' },
                 { label: "Distans", value: pick.distance || '-' }
             ],
