@@ -86,10 +86,11 @@ export const PrimePickDashboardCard = ({
     }
 
     if (primePick) {
-        const statusStr = (typeof primePick.status === 'string') ? primePick.status.toLowerCase() : '';
+        const statusStr = (typeof primePick.status === 'string') ? primePick.status.toLowerCase().trim() : '';
         const isCompletedStatus = ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(statusStr);
+        const isBlacklisted = ['öppen', 'pending', 'active', 'draft', 'publicerad', 'waiting'].includes(statusStr);
         
-        const hasResult = isCompletedStatus; // Only explicit statuses count as finished now. No more guessing by net_result.
+        const hasResult = isCompletedStatus && !isBlacklisted; // Only explicit statuses count as finished now. No more guessing by net_result.
 
         return (
             <article
