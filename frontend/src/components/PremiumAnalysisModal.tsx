@@ -16,6 +16,7 @@ interface ModalData {
     horseDetails?: any; // New field for Horse Profile
     isFinished?: boolean; // New field to check if game is finished
     isVoid?: boolean;
+    driver?: string;
 }
 
 interface PremiumAnalysisModalProps {
@@ -97,6 +98,12 @@ export const PremiumAnalysisModal = ({ isOpen, onClose, data, isClosed = false }
                                     <div className="flex flex-col p-2 min-w-[100px] flex-1">
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Odds</span>
                                         <span className={`text-2xl md:text-3xl font-bold text-[#2FAE8F] tracking-tighter drop-shadow-md ${data.isVoid ? 'line-through opacity-50' : ''}`}>{data.odds}</span>
+                                    </div>
+                                )}
+                                {data.driver && data.driver !== '-' && (
+                                    <div className="flex flex-col justify-center p-2 min-w-[100px] flex-1 relative md:border-l border-white/10 md:pl-4">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Kusk</span>
+                                        <span className={`text-sm font-medium text-gray-200 ${data.isVoid ? 'line-through opacity-50' : ''}`}>{data.driver}</span>
                                     </div>
                                 )}
                                 {data.units && data.units !== '-' && (

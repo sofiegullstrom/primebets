@@ -86,6 +86,11 @@ export const PrimePickDashboardCard = ({
     }
 
     if (primePick) {
+        const statusStr = primePick.status?.toLowerCase();
+        const hasResult = statusStr 
+            ? ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(statusStr)
+            : (primePick.net_result !== null && primePick.net_result !== undefined && Number(primePick.net_result) !== 0);
+
         return (
             <article
                 ref={primePickCardRef}
@@ -94,13 +99,13 @@ export const PrimePickDashboardCard = ({
             >
                 {/* Odds & Value - Top Right Corner - MATCHING SATURDAY CARD */}
                 <div className="absolute top-0 right-0 flex flex-col items-end gap-2 p-6 z-20">
-                    {(!primePick.net_result && primePick.odds && primePick.odds !== '-') && (
+                    {(!hasResult && primePick.odds && primePick.odds !== '-') && (
                         <div className="text-right">
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Odds</div>
                             <div className="text-3xl font-black text-white leading-none tracking-tight">{primePick.odds}</div>
                         </div>
                     )}
-                    {!primePick.net_result && primePick.value_percent && primePick.value_percent > 0 && (
+                    {(!hasResult && primePick.value_percent && primePick.value_percent > 0) && (
                         <div className="flex items-center gap-1.5 bg-[#2FAE8F]/10 px-2 py-1 rounded-lg border border-[#2FAE8F]/20 backdrop-blur-md">
                             <TrendingUp className="w-3 h-3 text-[#2FAE8F]" />
                             <span className="text-xs font-bold text-[#2FAE8F]">+{primePick.value_percent < 1 ? Math.round(primePick.value_percent * 100) : Math.round(primePick.value_percent)}%</span>
@@ -124,7 +129,7 @@ export const PrimePickDashboardCard = ({
                 {/* Header */}
                 <div className="mb-6 flex flex-col gap-2 relative z-10 w-full pr-24"> {/* Added padding right to avoid overlap with odds */}
                     <div className="flex items-center gap-2 mb-1">
-                        {(primePick.net_result !== null && primePick.net_result !== undefined) ? (
+                        {hasResult ? (
                             <span className="text-gray-400 text-sm font-bold uppercase tracking-wider">Avslutat spel</span>
                         ) : (
                             <span className="text-[#2FAE8F] text-sm font-medium">Idag</span>
@@ -133,7 +138,6 @@ export const PrimePickDashboardCard = ({
                     <div className="flex flex-wrap items-center gap-3">
                         <span className="inline-block px-2 py-0.5 rounded-full bg-[#2FAE8F]/10 text-[#2FAE8F] text-[9px] font-bold uppercase tracking-wider backdrop-blur-sm border border-[#2FAE8F]/10">Dagens PrimePick</span>
                         {(() => {
-                            const hasResult = primePick.net_result !== null && primePick.net_result !== undefined;
                             if (hasResult) {
                                 const status = primePick.status?.toLowerCase();
                                 const isWin = Number(primePick.net_result) > 0 || (status && ['won', 'vinst', 'win'].includes(status));
@@ -232,7 +236,6 @@ export const PrimePickDashboardCard = ({
                     {/* Right Logic (Result OR Buttons only) */}
                     <div className="flex flex-col w-full md:w-auto items-center md:items-end justify-between gap-4 md:h-full min-w-0 md:min-w-[200px] relative z-20">
                         {(() => {
-                            const hasResult = primePick.net_result !== null && primePick.net_result !== undefined;
                             if (hasResult) {
                                 const net = Number(primePick.net_result);
                                 const status = primePick.status?.toLowerCase();
@@ -261,7 +264,7 @@ export const PrimePickDashboardCard = ({
 
                         <div className="flex flex-col w-full gap-3 mt-8 md:mt-auto order-1 md:order-2">
 
-                            {primePick.net_result !== null && primePick.net_result !== undefined ? (
+                            {hasResult ? (
                                 <button
                                     disabled
                                     className="w-full px-6 py-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center gap-2 cursor-not-allowed opacity-50"

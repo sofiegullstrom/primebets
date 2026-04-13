@@ -319,7 +319,10 @@ export function Dashboard({ session }: { session: Session | null }) {
             interview: pick.interview_info || "",
             bookmaker: pick.bookmaker,
             horseDetails: horseInfos.find(h => h.id === pick.horse_id),
-            isFinished: (pick.net_result !== null && pick.net_result !== undefined)
+            driver: pick.driver || horseInfos.find(h => h.id === pick.horse_id)?.default_driver || '-',
+            isFinished: pick.status 
+                ? ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(pick.status.toLowerCase())
+                : (pick.net_result !== null && pick.net_result !== undefined && Number(pick.net_result) !== 0)
         };
 
         // Hockey specific override
