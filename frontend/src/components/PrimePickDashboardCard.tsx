@@ -89,14 +89,7 @@ export const PrimePickDashboardCard = ({
         const statusStr = (typeof primePick.status === 'string') ? primePick.status.toLowerCase() : '';
         const isCompletedStatus = ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(statusStr);
         
-        let parsedNet = 0;
-        if (primePick.net_result != null && primePick.net_result !== "") {
-            const normalized = primePick.net_result.toString().replace(',', '.');
-            parsedNet = Number(normalized);
-        }
-        const hasActualNet = !isNaN(parsedNet) && parsedNet !== 0;
-        
-        const hasResult = isCompletedStatus || (!statusStr && hasActualNet);
+        const hasResult = isCompletedStatus; // Only explicit statuses count as finished now. No more guessing by net_result.
 
         return (
             <article
