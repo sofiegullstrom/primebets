@@ -86,10 +86,21 @@ export const PrimePickDashboardCard = ({
     }
 
     if (primePick) {
-        const statusStr = primePick.status?.toLowerCase();
-        const hasResult = statusStr 
-            ? ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(statusStr)
-            : (primePick.net_result !== null && primePick.net_result !== undefined && Number(primePick.net_result) !== 0);
+        const statusStr = (typeof primePick.status === 'string') ? primePick.status.toLowerCase() : '';
+        
+        let parsedNet = 0;
+        if (primePick.net_result != null && primePick.net_result !== "") {
+            const normalized = primePick.net_result.toString().replace(',', '.');
+            parsedNet = Number(normalized);
+        }
+        const hasActualNet = !isNaN(parsedNet) && parsedNet !== 0;
+        
+        let hasResult = false;
+        if (statusStr && statusStr !== 'pending' && statusStr !== 'active' && statusStr !== 'draft') {
+            hasResult = true;
+        } else if (!statusStr && hasActualNet) {
+            hasResult = true;
+        }
 
         return (
             <article

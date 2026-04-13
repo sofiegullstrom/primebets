@@ -320,9 +320,21 @@ export function Dashboard({ session }: { session: Session | null }) {
             bookmaker: pick.bookmaker,
             horseDetails: horseInfos.find(h => h.id === pick.horse_id),
             driver: pick.driver || horseInfos.find(h => h.id === pick.horse_id)?.default_driver || '-',
-            isFinished: pick.status 
-                ? ['won', 'vinst', 'win', 'lost', 'förlust', 'loss', 'void', 'struken', 'refunded'].includes(pick.status.toLowerCase())
-                : (pick.net_result !== null && pick.net_result !== undefined && Number(pick.net_result) !== 0)
+            isFinished: (() => {
+                const checkStatus = (typeof pick.status === 'string') ? pick.status.toLowerCase() : '';
+                let parsedNet = 0;
+                if (pick.net_result != null && pick.net_result !== "") {
+                    parsedNet = Number(pick.net_result.toString().replace(',', '.'));
+                }
+                const hasActualNet = !isNaN(parsedNet) && parsedNet !== 0;
+                
+                if (checkStatus && checkStatus !== 'pending' && checkStatus !== 'active' && checkStatus !== 'draft') {
+                    return true;
+                } else if (!checkStatus && hasActualNet) {
+                    return true;
+                }
+                return false;
+            })()
         };
 
         // Hockey specific override
